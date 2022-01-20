@@ -25,44 +25,73 @@
   };
 
   outputs =
-    inputs@{ self, nixpkgs, nixpkgs-unstable, home-manager, flake-utils, ... }:
-    with builtins;
+    { self, nixpkgs, nixpkgs-unstable, home-manager, flake-utils, ... }@inputs:
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs {
         inherit system;
-        config = { allowUnfree = true; };
+        config = {
+          allowUnfree = true;
+          gc = {
+            automatic = true;
+            dates = "weekly";
+            options = "--delete-older-than 7d --max-freed $((64 * 1024**3))";
+
+          };
+          optimise = {
+            automatic = true;
+            dates = [ "weekly" ];
+          };
+        };
       };
-      lib = nixpkgs.lib;
-    in {
-
-      # nixosConfigurations = {
-      #   targus = lib.nixosSystem {
-      #     inherit system;
-
-      #     modules = [ ./system/configuration.nix ];
-      #   };
-      # };
       overlays = [
         inputs.neovim-nightly-overlay.overlay
         inputs.nixpkgs-wayland.overlay
       ];
-      environment.systemPackages = with pkgs; [
-        inputs.nixpkgs-wayland.packages.${system}.waybar
-        inputs.nixpkgs-wayland.packages.${system}.grim
-      ];
-      homeConfigurations = {
-        ghishadow = home-manager.lib.homeManagerConfiguration {
-          inherit system pkgs;
-          username = "ghishadow";
-          homeDirectory = "/home/ghishadow/";
-          configuration = { pkgs, ... }: {
-            programs.home-manager.enable = true;
-            nixpkgs.overlays = overlays;
-            imports = [ ./users/ghishadow/home.nix ];
-          };
+      lib = nixpkgs.lib;
+    in {
+
+      nixosConfigurations = {
+        targus = lib.nixosSystem {
+          inherit system;
+
+          modules = [
+            ({ config, pkgs, ... }: { nixpkgs.overlays = overlays; })
+            ./system/configuration.nix
+            home-manager.nixosModules.home-manager
+            {
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.users.ghishadow = import ./users/ghishadow/home.nix;
+            }
+          ];
         };
       };
+      # homeConfigurations = {
+      #     ghishadow = home-manager.lib.homeManagerConfiguration {
+      #       inherit system pkgs;
+      #       username = "ghishadow";
+      #       homeDirectory = "/home/ghishadow/";
+      #       configuration = { pkgs, ... }: {
+      #         programs.home-manager.enable = true;
+      #         nixpkgs.overlays = overlays;
+      #         imports = [ ./users/ghishadow/home.nix ];
+      #       };
+      #     };
+      #   };
 
+      templates = {
+        full = {
+          path = ./.;
+          description = "A grossly incandescent nixos config";
+        };
+        minimal = {
+          path = ./templates/minimal;
+          description = "A grossly incandescent and minimal nixos config";
+        };
+      };
+      defaultTemplate = self.templates.minimal;
+
+      devShell."${system}" = import ./shell.nix { inherit pkgs; };
     };
 }
