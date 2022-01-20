@@ -36,3 +36,9 @@ vm/step0:
 		nixos-install --no-root-passwd; \
 		reboot; \
 	"
+
+update/system:
+	nix flake update --recreate-lock-file
+
+apply/system:
+	nix flake
