@@ -12,7 +12,7 @@
     pkgs.gnumake
     pkgs.unzip
     pkgs.cached-nix-shell
-    pkgs.wezterm
+    pkgs.foot
     pkgs.fish
     pkgs.usbutils
     pkgs.home-manager
@@ -28,10 +28,11 @@
     pkgs.file
     pkgs.bind
     pkgs.dmenu
+    pkgs.helix
     pkgs.gnome3.adwaita-icon-theme
     pkgs.gnomeExtensions.appindicator
     pkgs.gnome3.gnome-settings-daemon
-    pkgs.emacsPgtkGcc
+    # pkgs.emacsPgtkGcc
   ];
 
   services = {

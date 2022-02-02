@@ -40,5 +40,6 @@ vm/step0:
 update/system:
 	nix flake update --recreate-lock-file
 
-apply/system:
-	nix flake
+switch/system:
+	sudo nixos-rebuild switch --flake ".#"
+	

@@ -97,13 +97,5 @@
   nix.package = pkgs.nixUnstable;
   nix.extraOptions = "experimental-features = nix-command flakes";
 
-  services.emacs.package = pkgs.emacsPgtkGcc;
-
-  nixpkgs.overlays = [
-    (import (builtins.fetchTarball {
-      url = https://github.com/nix-community/emacs-overlay/archive/master.tar.gz;
-    }))
-  ];
-
 }
 
