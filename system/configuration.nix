@@ -45,20 +45,6 @@
   hardware.opengl.enable = true;
   nixpkgs.config.allowUnfree = true;
   services.xserver.videoDrivers = [ "vmware" ];
-  programs.sway = {
-    enable = true;
-    wrapperFeatures.gtk = true; # so that gtk works properly
-    extraPackages = with pkgs; [
-      swaylock
-      swayidle
-      xwayland
-      kanshi
-      yambar
-      wl-clipboard
-      mako # notification daemon
-      fuzzel # Dmenu is the default in the config but i recommend wofi since its wayland native
-    ];
-  };
   # Configure keymap in X11
   # services.xserver.layout = "us";
   # services.xserver.xkbOptions = "eurosign:e";
@@ -110,7 +96,6 @@
   system.stateVersion = "21.11"; # Did you read the comment?
   nix.package = pkgs.nixUnstable;
   nix.extraOptions = "experimental-features = nix-command flakes";
-  services.openssh.passwordAuthentication = true;
 
   services.emacs.package = pkgs.emacsPgtkGcc;
 

@@ -41,6 +41,20 @@
       # enableSSHSupport = true;
     };
   };
+  programs.sway = {
+    enable = true;
+    wrapperFeatures.gtk = true; # so that gtk works properly
+    extraPackages = with pkgs; [
+      swaylock
+      swayidle
+      xwayland
+      kanshi
+      yambar
+      wl-clipboard
+      mako # notification daemon
+      fuzzel # Dmenu is the default in the config but i recommend wofi since its wayland native
+    ];
+  };
   programs = {
     bat.enable = true;
     gpg.enable = true;
