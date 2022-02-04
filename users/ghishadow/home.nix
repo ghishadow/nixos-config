@@ -32,6 +32,7 @@
     pkgs.gnome3.adwaita-icon-theme
     pkgs.gnomeExtensions.appindicator
     pkgs.gnome3.gnome-settings-daemon
+    pkgs.sway
     # pkgs.emacsPgtkGcc
   ];
 
@@ -42,21 +43,18 @@
       # enableSSHSupport = true;
     };
   };
-  programs.sway = {
-    enable = true;
-    wrapperFeatures.gtk = true; # so that gtk works properly
-    extraPackages = with pkgs; [
-      swaylock
-      swayidle
-      xwayland
-      kanshi
-      yambar
-      wl-clipboard
-      mako # notification daemon
-      fuzzel # Dmenu is the default in the config but i recommend wofi since its wayland native
-    ];
-  };
   programs = {
+  # sway = {
+  #   enable = true;
+  #   wrapperFeatures.gtk = true; # so that gtk works properly
+  #   extraPackages = with pkgs; [
+  #     swaylock
+  #     swayidle
+  #     xwayland
+  #     kanshi
+  #     fuzzel # Dmenu is the default in the config but i recommend wofi since its wayland native
+  #   ];
+  # };
     bat.enable = true;
     gpg.enable = true;
     fzf.enable = true;

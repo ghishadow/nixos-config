@@ -10,7 +10,7 @@
   ];
 
   # Use the systemd-boot EFI boot loader.
-  environment.pathsToLink = [ "${pkgs.xorg.libxcb}/lib/" ];
+  # environment.pathsToLink = [ "${pkgs.xorg.libxcb}/lib/" ];
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   hardware.opengl.driSupport = true;

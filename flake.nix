@@ -47,6 +47,7 @@
       overlays = [
         inputs.neovim-nightly-overlay.overlay
         inputs.nixpkgs-wayland.overlay
+        inputs.emacs-overlay.overlay
       ];
       lib = nixpkgs.lib;
     in {
@@ -56,7 +57,14 @@
           inherit system;
 
           modules = [
-            ({ config, pkgs, ... }: { nixpkgs.overlays = overlays; })
+            ({ config, pkgs, ... }: { nixpkgs.overlays = overlays;
+            environment.systemPackages = with pkgs; [
+              inputs.nixpkgs-wayland.packages.${system}.waybar
+              inputs.nixpkgs-wayland.packages.${system}.mako
+              inputs.nixpkgs-wayland.packages.${system}.wl-clipboard
+              inputs.nixpkgs-wayland.packages.${system}.wlogout
+            ];
+             })
             ./system/configuration.nix
             home-manager.nixosModules.home-manager
             {
