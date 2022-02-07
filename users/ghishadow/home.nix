@@ -33,6 +33,8 @@
     pkgs.gnomeExtensions.appindicator
     pkgs.gnome3.gnome-settings-daemon
     pkgs.sway
+    pkgs.bitwarden
+    pkgs.bitwarden-cli
     # pkgs.emacsPgtkGcc
   ];
 

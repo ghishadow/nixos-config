@@ -20,6 +20,7 @@
   # Set your time zone.
   time.timeZone = "Asia/Kolkata";
   virtualisation.vmware.guest.enable = true;
+  virtualisation.docker.enable = true;
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
   # Per-interface useDHCP will be mandatory in the future, so this generated config
   # replicates the default behaviour.
@@ -63,7 +64,7 @@
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.ghishadow = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "video" "audio" ]; # Enable ‘sudo’ for the user.
+    extraGroups = [ "wheel" "video" "audio" "docker" ]; # Enable ‘sudo’ for the user.
     shell = pkgs.fish;
   };
 
