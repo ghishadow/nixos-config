@@ -59,7 +59,6 @@
           modules = [
             ({ config, pkgs, ... }: { nixpkgs.overlays = overlays;
             environment.systemPackages = with pkgs; [
-              inputs.nixpkgs-wayland.packages.${system}.waybar
               inputs.nixpkgs-wayland.packages.${system}.mako
               inputs.nixpkgs-wayland.packages.${system}.wl-clipboard
               inputs.nixpkgs-wayland.packages.${system}.wlogout

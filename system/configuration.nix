@@ -5,7 +5,8 @@
 { config, pkgs, ... }:
 
 {
-  imports = [ # Include the results of the hardware scan.
+  imports = [
+    # Include the results of the hardware scan.
     ./hardware-configuration.nix
   ];
 
@@ -27,6 +28,9 @@
   networking.useDHCP = false;
   networking.interfaces.ens33.useDHCP = true;
   networking.networkmanager.enable = true;
+  
+  nix.autoOptimiseStore = true;
+
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
@@ -40,11 +44,13 @@
 
   # Enable the X11 windowing system.
   services.xserver.enable = false;
+  #services.xserver.displayManager.gdm.enable = true;
+  #services.xserver.desktopManager.gnome.enable = true;
+  services.gnome.core-utilities.enable = false;
   services.xserver.updateDbusEnvironment = true;
-  # services.xserver.displayManager.gdm.enable = true;
-  # services.xserver.desktopManager.gnome.enable = true;
   hardware.opengl.enable = true;
   nixpkgs.config.allowUnfree = true;
+
   services.xserver.videoDrivers = [ "vmware" ];
   # Configure keymap in X11
   # services.xserver.layout = "us";
@@ -52,7 +58,7 @@
 
   # Enable CUPS to print documents.
   # services.printing.enable = true;
-
+  services.flatpak.enable = true;
   xdg.portal.wlr.enable = true;
   # Enable sound.
   sound.enable = true;
@@ -70,10 +76,21 @@
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
-  # environment.systemPackages = with pkgs; [ emacsPgtkGcc];
+  environment.systemPackages = with pkgs; [bintools-unwrapped];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
+  programs.sway = {
+  enable = true;
+  wrapperFeatures.gtk = true; # so that gtk works properly
+  extraPackages = with pkgs; [
+    swaylock
+    swayidle
+    wl-clipboard
+    mako
+    foot
+  ];
+};
   programs.mtr.enable = true;
   programs.gnupg.agent = {
     enable = true;

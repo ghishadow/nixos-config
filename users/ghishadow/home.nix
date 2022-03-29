@@ -1,62 +1,75 @@
 { config, pkgs, overlays, ... }: {
 
-  home.packages = [
-    pkgs.fzf
-    pkgs.ctags
-    pkgs.fd
-    pkgs.ripgrep
-    pkgs.git
-    pkgs.clang
-    pkgs.wget
-    pkgs.font-awesome
-    pkgs.gnumake
-    pkgs.unzip
-    pkgs.cached-nix-shell
-    pkgs.foot
-    pkgs.fish
-    pkgs.usbutils
-    pkgs.home-manager
-    pkgs.vscode
-    pkgs.open-vm-tools
-    pkgs.gnupg
-    pkgs.libu2f-host
-    pkgs.opensc
-    pkgs.pcsctools
-    pkgs.gh
-    pkgs.nodejs
-    pkgs.vulkan-tools
-    pkgs.file
-    pkgs.bind
-    pkgs.dmenu
-    pkgs.helix
-    pkgs.gnome3.adwaita-icon-theme
-    pkgs.gnomeExtensions.appindicator
-    pkgs.gnome3.gnome-settings-daemon
-    pkgs.sway
-    pkgs.bitwarden
-    pkgs.bitwarden-cli
-    # pkgs.emacsPgtkGcc
+  home.packages = with pkgs; [
+    dua
+    python3
+    rclone
+    fzf
+    nushell
+    ctags
+    sqlite
+    fd
+    ripgrep
+    git
+    font-awesome
+    gnumake
+    unzip
+    cached-nix-shell
+    helix
+    usbutils
+    home-manager
+    open-vm-tools
+    gnupg
+    libu2f-host
+    opensc
+    pcsctools
+    gh
+    #gcc
+    mosh
+    clang_multi
+    deno
+    file
+    enchant
+    gnome3.adwaita-icon-theme
+    gnome3.gnome-settings-daemon
+    sway
+    swaylock
+    bitwarden
+    bitwarden-cli
+    emacsPgtkGcc
+    wget
+    xorg.xprop
+    xorg.xwininfo
+    thefuck
+    rustup
+    firefox
+    rust-analyzer
+    zoxide
+    zellij
+    foot
+    lapce
+    pciutils
+    fnm
   ];
+
+  # stdenv = pkgs.clangStdenv;
 
   services = {
     lorri.enable = true;
-    gpg-agent = {
-      enable = true;
-      # enableSSHSupport = true;
-    };
+    gpg-agent = { enable = true; };
   };
   programs = {
-  # sway = {
-  #   enable = true;
-  #   wrapperFeatures.gtk = true; # so that gtk works properly
-  #   extraPackages = with pkgs; [
-  #     swaylock
-  #     swayidle
-  #     xwayland
-  #     kanshi
-  #     fuzzel # Dmenu is the default in the config but i recommend wofi since its wayland native
-  #   ];
-  # };
+    neovim.plugins = [
+    {
+      plugin = pkgs.vimPlugins.sqlite-lua;
+      config = "let g:sqlite_clib_path = '${pkgs.sqlite.out}/lib/libsqlite3.so'";
+    }
+];
+    git = {
+      enable = true;
+      userName = "Suraj Ghimire";
+      userEmail = "suraj@ghishadow.com";
+    };
     bat.enable = true;
     gpg.enable = true;
     fzf.enable = true;
@@ -68,10 +81,8 @@
     exa.enable = true;
     direnv = {
       enable = true;
-      nix-direnv = {
-      enable = true;
-      };
+      nix-direnv = { enable = true; };
+    };
   };
-};
 }
 
