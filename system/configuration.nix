@@ -1,10 +1,11 @@
 # Edit this configuration file to define what should be installed on
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
-
-{ config, pkgs, ... }:
-
 {
+  config,
+  pkgs,
+  ...
+}: {
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
@@ -28,7 +29,7 @@
   networking.useDHCP = false;
   networking.interfaces.ens33.useDHCP = true;
   networking.networkmanager.enable = true;
-  
+
   nix.autoOptimiseStore = true;
 
   # Configure network proxy if necessary
@@ -44,6 +45,20 @@
 
   # Enable the X11 windowing system.
   services.xserver.enable = false;
+
+  environment = {
+    loginShellInit = ''
+      if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
+      exec sway
+      fi
+    '';
+
+    etc = {
+      # Put config files in /etc. Note that you also can put these in ~/.config, but then you can't manage them with NixOS anymore!
+      #  "xdg/waybar/config".source = ./dotfiles/waybar/config;
+      # "xdg/waybar/style.css".source = ./dotfiles/waybar/style.css;
+    };
+  };
   #services.xserver.displayManager.gdm.enable = true;
   #services.xserver.desktopManager.gnome.enable = true;
   services.gnome.core-utilities.enable = false;
@@ -51,46 +66,86 @@
   hardware.opengl.enable = true;
   nixpkgs.config.allowUnfree = true;
 
-  services.xserver.videoDrivers = [ "vmware" ];
+  services.xserver.videoDrivers = ["vmware"];
   # Configure keymap in X11
   # services.xserver.layout = "us";
   # services.xserver.xkbOptions = "eurosign:e";
 
+  systemd.user.targets.sway-session = {
+    description = "Sway compositor session";
+    documentation = ["man:systemd.special(7)"];
+    bindsTo = ["graphical-session.target"];
+    wants = ["graphical-session-pre.target"];
+    after = ["graphical-session-pre.target"];
+  };
+
   # Enable CUPS to print documents.
   # services.printing.enable = true;
   services.flatpak.enable = true;
-  xdg.portal.wlr.enable = true;
   # Enable sound.
-  sound.enable = true;
-  hardware.pulseaudio.enable = true;
+  #sound.enable = true;
+  security.rtkit.enable = true;
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    pulse.enable = true;
+  };
+  #hardware.pulseaudio.enable = true;
 
+  # enable the tailscale daemon; this will do a variety of tasks:j  # 1. create the TUN network devicej  # 2. setup some IP routes to route through the TUN
+  services.tailscale = {enable = true;};
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.ghishadow = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "video" "audio" "docker" ]; # Enable ‘sudo’ for the user.
+    extraGroups = ["wheel" "video" "audio" "docker"]; # Enable ‘sudo’ for the user.
     shell = pkgs.fish;
   };
 
+  security.sudo.extraRules = [
+    {
+      users = ["ghishadow"];
+      commands = [
+        {
+          command = "ALL";
+          options = ["NOPASSWD"]; # "SETENV" # Adding the following could be a good idea
+        }
+      ];
+    }
+  ];
   # List packages installed in system profile. To search, run:
   # $ nix search wget
-  environment.systemPackages = with pkgs; [bintools-unwrapped];
+  environment.systemPackages = with pkgs; [bintools-unwrapped polkit_gnome];
+  environment.pathsToLink = ["/libexec"];
+  programs.nix-ld.enable = true;
+
+  # enable xdg desktop integration https://github.com/flatpak/xdg-desktop-portal/blob/master/README.md
+  xdg = {
+    portal = {
+      enable = true;
+      extraPortals = with pkgs; [
+        xdg-desktop-portal-wlr
+        xdg-desktop-portal-gtk
+      ];
+      gtkUsePortal = true;
+    };
+  };
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   programs.sway = {
-  enable = true;
-  wrapperFeatures.gtk = true; # so that gtk works properly
-  extraPackages = with pkgs; [
-    swaylock
-    swayidle
-    wl-clipboard
-    mako
-    foot
-  ];
-};
+    enable = true;
+    wrapperFeatures.gtk = true; # so that gtk works properly
+    extraPackages = with pkgs; [
+      swaylock
+      swayidle
+      wl-clipboard
+      mako
+      foot
+    ];
+  };
   programs.mtr.enable = true;
   programs.gnupg.agent = {
     enable = true;
@@ -111,9 +166,7 @@
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "21.11"; # Did you read the comment?
+  system.stateVersion = "22.05"; # Did you read the comment?
   nix.package = pkgs.nixUnstable;
   nix.extraOptions = "experimental-features = nix-command flakes";
-
 }
-

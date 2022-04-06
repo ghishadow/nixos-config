@@ -1,6 +1,35 @@
-{ config, pkgs, overlays, ... }: {
+{
+  config,
+  pkgs,
+  overlays,
+  ...
+}: {
+  home.sessionVariables = {
+    MOZ_ENABLE_WAYLAND = 1;
+    XDG_CURRENT_DESKTOP = "sway";
+  };
 
   home.packages = with pkgs; [
+    # secret stuff
+    libnotify
+    libsecret
+    gnome.gnome-keyring
+    ffmpeg
+    yt-dlp
+    termusic
+    cliphist
+    sway-contrib.inactive-windows-transparency
+    sway-contrib.grimshot
+    grim
+    waybar
+    sccache
+    desktop-file-utils
+    openssl
+    openssl.dev
+    editorconfig-core-c
+    gnome.nautilus
+    diskonaut
+    fuzzel
     dua
     python3
     rclone
@@ -9,8 +38,9 @@
     ctags
     sqlite
     fd
+    foot
     ripgrep
-    git
+    starship
     font-awesome
     gnumake
     unzip
@@ -27,14 +57,14 @@
     #gcc
     mosh
     clang_multi
-    deno
     file
+    just
     enchant
     gnome3.adwaita-icon-theme
     gnome3.gnome-settings-daemon
     sway
     swaylock
-    bitwarden
+    shellcheck
     bitwarden-cli
     emacsPgtkGcc
     wget
@@ -42,33 +72,48 @@
     xorg.xwininfo
     thefuck
     rustup
-    firefox
+    firefox-wayland
     rust-analyzer
     zoxide
     zellij
-    foot
-    lapce
     pciutils
-    fnm
   ];
 
   # stdenv = pkgs.clangStdenv;
 
   services = {
     lorri.enable = true;
-    gpg-agent = { enable = true; };
+    gpg-agent = {enable = true;};
   };
   programs = {
-    neovim.plugins = [
-    {
-      plugin = pkgs.vimPlugins.sqlite-lua;
-      config = "let g:sqlite_clib_path = '${pkgs.sqlite.out}/lib/libsqlite3.so'";
-    }
-];
     git = {
       enable = true;
       userName = "Suraj Ghimire";
       userEmail = "suraj@ghishadow.com";
+      aliases = {gl = "pull";};
+      #delta.enable = true;
+      #init = {
+      #  defaultBranch = "main";
+      # };
+      lfs = {
+        enable = true;
+      };
+      signing = {
+        signByDefault = true;
+        key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG8jIo/7ypSugYtrtCEbtPkxe4Rtt/YELALAoRTKtK28";
+      };
+      extraConfig = {
+        diff.algorithm = "histogram";
+        gpg.format = "ssh";
+        gpg.ssh.program = "${pkgs.openssh}/bin/ssh-keygen";
+        core.pager = "delta";
+        core.editor = "${pkgs.helix}/bin/hx";
+        init.defaultBranch = "main";
+        interactive.diffFilter = "delta --color-only";
+        delta.navigate = true;
+        merge.conflictstyle = "diff3";
+        diff.colorMoved = "default";
+      };
     };
     bat.enable = true;
     gpg.enable = true;
@@ -81,8 +126,7 @@
     exa.enable = true;
     direnv = {
       enable = true;
-      nix-direnv = { enable = true; };
+      nix-direnv = {enable = true;};
     };
   };
 }
-

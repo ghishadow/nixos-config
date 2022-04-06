@@ -6,6 +6,12 @@ NIXUSER ?= ghishadow
 # Settings
 NIXBLOCKDEVICE ?= sda
 
+# Get the path to this Makefile and directory
+MAKEFILE_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
+
+# The name of the nixosConfiguration in the flake
+NIXNAME ?= targus
+
 # SSH options that are used. These aren't meant to be overridden but are
 # reused a lot so we just store them up here.
 SSH_OPTIONS=-o PubkeyAuthentication=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
@@ -37,9 +43,55 @@ vm/step0:
 		reboot; \
 	"
 
+vm/step1:
+	NIXUSER=root ${MAKE} vm/copy
+	NIXUSER=root ${MAKE} vm/install
+	$(MAKE) vm/secrets
+	ssh $(SSH_OPTIONS) -p$(NIXPORT) $(NIXUSER)@$(NIXADDR) " \
+	sudo reboot; \
+	"
+
 update/system:
 	nix flake update --recreate-lock-file
 
 switch/system:
-	sudo nixos-rebuild switch --flake ".#"
+	sudo nixos-rebuild switch --flake ".#${NIXNAME}"
 	
+test/system:
+	sudo nixos-rebuild test --flake ".#$(NIXNAME)"
+	
+cleanup:
+	~/bin/hey gc
+	
+
+# copy our secrets into the VM
+vm/secrets:
+	# GPG keyring
+	rsync -av -e 'ssh $(SSH_OPTIONS)' \
+		--exclude='.#*' \
+		--exclude='S.*' \
+		--exclude='*.conf' \
+		$(HOME)/.gnupg/ $(NIXUSER)@$(NIXADDR):~/.gnupg
+	# SSH keys
+	rsync -av -e 'ssh $(SSH_OPTIONS)' \
+		--exclude='environment' \
+		$(HOME)/.ssh/ $(NIXUSER)@$(NIXADDR):~/.ssh
+
+# copy the Nix configurations into the VM.
+vm/copy:
+	rsync -av -e 'ssh $(SSH_OPTIONS) -p$(NIXPORT)' \
+		--exclude='vendor/' \
+		--exclude='.git/' \
+		--exclude='.git-crypt/' \
+		--exclude='iso/' \
+		--rsync-path="sudo rsync" \
+		$(MAKEFILE_DIR)/ $(NIXUSER)@$(NIXADDR):/nix-config
+
+
+vm/install:
+	ssh $(SSH_OPTIONS) -p$(NIXPORT) $(NIXUSER)@$(NIXADDR) " \
+	sudo nix-shell \
+	--argstr blockDevice $(NIXBLOCKDEVICE) \
+	--argstr systemName $(NIXNAME) \
+	/nix-config/bootstrap \
+	"
