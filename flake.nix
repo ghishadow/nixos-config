@@ -8,18 +8,25 @@
     flake-utils.url = "github:numtide/flake-utils";
     home-manager.url = "github:nix-community/home-manager/master";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    #lapce-overlay.url = "github:ghishadow/lapce-overlay";
     agenix.url = "github:ryantm/agenix";
     agenix.inputs.nixpkgs.follows = "nixpkgs";
-    nixpkgs-wayland = {url = "github:nix-community/nixpkgs-wayland";};
+    #nixpkgs-wayland = {url = "github:nix-community/nixpkgs-wayland";};
     # only needed if you use as a package set:
-    nixpkgs-wayland.inputs.nixpkgs.follows = "nixpkgs";
-    nixpkgs-wayland.inputs.master.follows = "master";
+    #nixpkgs-wayland.inputs.nixpkgs.follows = "nixpkgs";
+    #nixpkgs-wayland.inputs.master.follows = "master";
+    neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
     # Extras
-    emacs-overlay.url = "github:nix-community/emacs-overlay";
     nixos-hardware.url = "github:nixos/nixos-hardware";
 
+    vscode-server = {
+      url = "github:msteen/nixos-vscode-server";
+      flake = false;
+    };
+    emacs-overlay.url = "github:ghishadow/emacs-overlay";
     # Other packages
     zig.url = "github:arqv/zig-overlay";
+    #moonlight.url = "github:mozilla/nixpkgs-mozilla";
   };
 
   outputs = {
@@ -47,8 +54,14 @@
       };
     };
     overlays = [
-      inputs.nixpkgs-wayland.overlay
       inputs.emacs-overlay.overlay
+      inputs.neovim-nightly-overlay.overlay
+      (final: prev: {
+        # Zig doesn't export an overlay so we do it here
+        zig-master = inputs.zig.packages.${prev.system}.master.latest;
+      })
+      #inputs.lapce-overlay.overlay
+      #inputs.moonlight.overlay
     ];
     lib = nixpkgs.lib;
   in {
@@ -64,8 +77,6 @@
           }: {
             nixpkgs.overlays = overlays;
             environment.systemPackages = with pkgs; [
-              inputs.nixpkgs-wayland.packages.${system}.wl-clipboard
-              inputs.nixpkgs-wayland.packages.${system}.wlogout
             ];
           })
           ./system/configuration.nix
@@ -73,11 +84,13 @@
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.users.ghishadow = import ./users/ghishadow/home.nix;
+            home-manager.users.ghishadow =
+              import ./users/ghishadow/home.nix;
           }
         ];
       };
     };
+    # used in non-NixOS
     # homeConfigurations = {
     #     ghishadow = home-manager.lib.homeManagerConfiguration {
     #       inherit system pkgs;

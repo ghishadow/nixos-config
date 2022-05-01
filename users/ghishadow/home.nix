@@ -7,17 +7,58 @@
   home.sessionVariables = {
     MOZ_ENABLE_WAYLAND = 1;
     XDG_CURRENT_DESKTOP = "sway";
+    SDL_VIDEODRIVER = "wayland";
+    QT_QPA_PLATFORM = "wayland";
+    WINIT_UNIX_BACKEND = "wayland";
+    #MOZ_DISABLE_CONTENT_SANDBOX = 1;
   };
 
   home.packages = with pkgs; [
+    rustup
+    stylua
+    black
+    nodePackages.prettier
+    mercurial
+    autotiling
+    git-ignore
+    virt-viewer
+    magic-wormhole
+    cachix
+    wayland
+    bind
+    helvum
+    neovide
+    jless
+    glow
+    asciinema
+    sublime4
     # secret stuff
+    gnome.gnome-themes-extra
+    gtk-engine-murrine
+    delta
+    gtk_engines
+    libtool
+    cmake
+    libvterm
+    gnome.gnome-tweaks
+    xdg-utils
+    zathura
     libnotify
+    meson
+    ninja
+    lsof
+    tokei
+    glib
+    gtkmm4
+    fish
     libsecret
     gnome.gnome-keyring
+    gsettings-desktop-schemas
     ffmpeg
     yt-dlp
     termusic
     cliphist
+    lazygit
     sway-contrib.inactive-windows-transparency
     sway-contrib.grimshot
     grim
@@ -25,30 +66,25 @@
     sccache
     desktop-file-utils
     openssl
-    openssl.dev
     editorconfig-core-c
-    gnome.nautilus
+    cinnamon.nemo
     diskonaut
     fuzzel
     dua
-    python3
     rclone
-    fzf
     nushell
     ctags
     sqlite
     fd
     foot
     ripgrep
-    starship
     font-awesome
     gnumake
     unzip
     cached-nix-shell
-    helix
+    neovim-nightly
     usbutils
     home-manager
-    open-vm-tools
     gnupg
     libu2f-host
     opensc
@@ -66,35 +102,85 @@
     swaylock
     shellcheck
     bitwarden-cli
-    emacsPgtkGcc
+    emacsPgtkNativeComp
     wget
     xorg.xprop
     xorg.xwininfo
     thefuck
-    rustup
+    # enable when webextension issue is fixed upstream #167785
     firefox-wayland
     rust-analyzer
-    zoxide
     zellij
     pciutils
+    difftastic
   ];
 
-  # stdenv = pkgs.clangStdenv;
+  #services.vscode-server.enable = true;
 
   services = {
     lorri.enable = true;
     gpg-agent = {enable = true;};
   };
   programs = {
+    zoxide = {
+      enable = true;
+      enableZshIntegration = true;
+    };
+    mcfly = {
+      enable = true;
+      enableZshIntegration = true;
+      enableFuzzySearch = true;
+    };
+    keychain = {
+      enableZshIntegration = true;
+      keys = ["id_ed25519"];
+      enable = true;
+    };
+
+    zsh = {
+      enable = true;
+      enableAutosuggestions = true;
+      enableCompletion = true;
+      enableSyntaxHighlighting = true;
+      autocd = true;
+      shellAliases = {
+        e = "emacsclient -c -a '' $argv";
+        sl = "exa";
+        ls = "exa";
+        l = "exa -l";
+        la = "exa -la";
+        buklo = "/home/ghishadow/github/buklo/target/release/buklo";
+        ip = "ip --color=auto";
+      };
+      oh-my-zsh = {
+        enable = true;
+        plugins = ["git" "thefuck" "docker" "docker-compose" "direnv" "history-substring-search"];
+      };
+      plugins = [
+        {
+          name = "zsh-nix-shell";
+          file = "nix-shell.plugin.zsh";
+          src = pkgs.fetchFromGitHub {
+            owner = "chisui";
+            repo = "zsh-nix-shell";
+            rev = "v0.5.0";
+            sha256 = "0za4aiwwrlawnia4f29msk822rj9bgcygw6a8a6iikiwzjjz0g91";
+          };
+        }
+      ];
+      initExtra = ''
+        eval "$(starship init zsh --print-full-init)"
+      '';
+    };
+    starship = {
+      enable = true;
+      enableZshIntegration = true;
+    };
     git = {
       enable = true;
       userName = "Suraj Ghimire";
       userEmail = "suraj@ghishadow.com";
       aliases = {gl = "pull";};
-      #delta.enable = true;
-      #init = {
-      #  defaultBranch = "main";
-      # };
       lfs = {
         enable = true;
       };
@@ -111,13 +197,20 @@
         init.defaultBranch = "main";
         interactive.diffFilter = "delta --color-only";
         delta.navigate = true;
+        difftastic.enable = true;
         merge.conflictstyle = "diff3";
         diff.colorMoved = "default";
       };
     };
+    helix = {
+      enable = true;
+    };
     bat.enable = true;
-    gpg.enable = true;
-    fzf.enable = true;
+    #gpg.enable = true;
+    fzf = {
+      enable = true;
+      enableZshIntegration = true;
+    };
     jq.enable = true;
     command-not-found.enable = true;
     dircolors.enable = true;
@@ -125,8 +218,11 @@
     info.enable = true;
     exa.enable = true;
     direnv = {
+      enableZshIntegration = true;
       enable = true;
-      nix-direnv = {enable = true;};
+      nix-direnv = {
+        enable = true;
+      };
     };
   };
 }

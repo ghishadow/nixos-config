@@ -4,11 +4,17 @@
 {
   config,
   pkgs,
+  lib,
   ...
 }: {
   imports = [
     # Include the results of the hardware scan.
+    ./modules/mpv.nix
     ./hardware-configuration.nix
+    (fetchTarball {
+      url = "https://github.com/msteen/nixos-vscode-server/tarball/master";
+      sha256 = "sha256:1cszfjwshj6imkwip270ln4l1j328aw2zh9vm26wv3asnqlhdrak";
+    })
   ];
 
   # Use the systemd-boot EFI boot loader.
@@ -22,7 +28,7 @@
   # Set your time zone.
   time.timeZone = "Asia/Kolkata";
   virtualisation.vmware.guest.enable = true;
-  virtualisation.docker.rootless.enable = true;
+  #virtualisation.docker.rootless.enable = true;
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
   # Per-interface useDHCP will be mandatory in the future, so this generated config
   # replicates the default behaviour.
@@ -32,6 +38,7 @@
 
   nix.autoOptimiseStore = true;
 
+  environment.variables.EDITOR = "nvim";
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
@@ -46,9 +53,15 @@
   # Enable the X11 windowing system.
   services.xserver.enable = false;
 
+  # Keyring
+  services.gnome.gnome-keyring.enable = true;
+
+  services.vscode-server.enable = true;
+
   environment = {
     loginShellInit = ''
       if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
+      export WLR_NO_HARDWARE_CURSORS=1
       exec sway
       fi
     '';
@@ -86,9 +99,12 @@
   #sound.enable = true;
   security.rtkit.enable = true;
   services.pipewire = {
+    wireplumber.enable = true;
+    media-session.enable = false;
     enable = true;
     alsa.enable = true;
     pulse.enable = true;
+    jack.enable = true;
   };
   #hardware.pulseaudio.enable = true;
 
@@ -101,7 +117,7 @@
   users.users.ghishadow = {
     isNormalUser = true;
     extraGroups = ["wheel" "video" "audio" "docker"]; # Enable ‘sudo’ for the user.
-    shell = pkgs.fish;
+    shell = pkgs.zsh;
   };
 
   security.sudo.extraRules = [
@@ -115,12 +131,15 @@
       ];
     }
   ];
+
   # List packages installed in system profile. To search, run:
+
   # $ nix search wget
-  environment.systemPackages = with pkgs; [bintools-unwrapped polkit_gnome];
+
+  environment.systemPackages = with pkgs; [bintools-unwrapped polkit_gnome alsa-utils pamixer];
   environment.pathsToLink = ["/libexec"];
   programs.nix-ld.enable = true;
-
+  programs.seahorse.enable = true;
   # enable xdg desktop integration https://github.com/flatpak/xdg-desktop-portal/blob/master/README.md
   xdg = {
     portal = {
@@ -142,15 +161,11 @@
       swaylock
       swayidle
       wl-clipboard
-      mako
+      fnott
       foot
     ];
   };
   programs.mtr.enable = true;
-  programs.gnupg.agent = {
-    enable = true;
-    enableSSHSupport = true;
-  };
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
   #services.vmwareGuest.enable = true;
@@ -166,7 +181,7 @@
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "22.05"; # Did you read the comment?
+  system.stateVersion = "21.11"; # Did you read the comment?
   nix.package = pkgs.nixUnstable;
   nix.extraOptions = "experimental-features = nix-command flakes";
 }
