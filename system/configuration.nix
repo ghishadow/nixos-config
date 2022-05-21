@@ -17,24 +17,54 @@
     })
   ];
 
+  nixpkgs.config.packageOverrides = pkgs:
+    pkgs.lib.recursiveUpdate pkgs {
+      linuxKernel.kernels.linux_5_17 = pkgs.linuxKernel.kernels.linux_5_17.override {
+        #  extraConfig = ''
+        #    KGDB y
+        # '';
+      };
+    };
+  boot.kernelPackages = pkgs.linuxKernel.packages.linux_5_17;
+  #boot.kernelModules = [ "vmwgfx"];
   # Use the systemd-boot EFI boot loader.
   # environment.pathsToLink = [ "${pkgs.xorg.libxcb}/lib/" ];
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  hardware.opengl.driSupport = true;
-  networking.hostName = "targus"; # Define your hostname.
+  hardware.opengl = {
+    enable = true;
+    driSupport = true;
+    driSupport32Bit = true;
+    extraPackages = with pkgs; [
+      vaapiVdpau
+      libvdpau-va-gl
+    ];
+  };
+
+  networking.hostName = "anya"; # Define your hostname.
   #networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Set your time zone.
   time.timeZone = "Asia/Kolkata";
   virtualisation.vmware.guest.enable = true;
-  #virtualisation.docker.rootless.enable = true;
+  virtualisation.docker.enable = true;
+  virtualisation.podman.enable = false;
+  virtualisation.podman.dockerSocket.enable = true;
+  virtualisation.podman.defaultNetwork.dnsname.enable = true;
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
   # Per-interface useDHCP will be mandatory in the future, so this generated config
   # replicates the default behaviour.
   networking.useDHCP = false;
   networking.interfaces.ens33.useDHCP = true;
+  # networking.firewall.checkReversePath = "loose";
   networking.networkmanager.enable = true;
+
+  # enable the tailscale daemon; this will do a variety of tasks:j  # 1. create the TUN network devicej  # 2. setup some IP routes to route through the TUN
+  #services.tailscale = {enable = true;};
+  services.resolved.enable = true;
+  networking.useNetworkd = true;
+  # run while the tailscale service is running.
+  networking.interfaces.tailscale0.useDHCP = lib.mkDefault true;
 
   nix.autoOptimiseStore = true;
 
@@ -49,6 +79,11 @@
     font = "Lat2-Terminus16";
     keyMap = "us";
   };
+
+  fonts.fonts = with pkgs; [
+    # nerd font
+    (nerdfonts.override {fonts = ["FiraCode" "JetBrainsMono"];})
+  ];
 
   # Enable the X11 windowing system.
   services.xserver.enable = false;
@@ -75,8 +110,7 @@
   #services.xserver.displayManager.gdm.enable = true;
   #services.xserver.desktopManager.gnome.enable = true;
   services.gnome.core-utilities.enable = false;
-  services.xserver.updateDbusEnvironment = true;
-  hardware.opengl.enable = true;
+  #services.xserver.updateDbusEnvironment = true;
   nixpkgs.config.allowUnfree = true;
 
   services.xserver.videoDrivers = ["vmware"];
@@ -108,15 +142,13 @@
   };
   #hardware.pulseaudio.enable = true;
 
-  # enable the tailscale daemon; this will do a variety of tasks:j  # 1. create the TUN network devicej  # 2. setup some IP routes to route through the TUN
-  services.tailscale = {enable = true;};
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.ghishadow = {
     isNormalUser = true;
-    extraGroups = ["wheel" "video" "audio" "docker"]; # Enable ‘sudo’ for the user.
+    extraGroups = ["wheel" "video" "audio" "docker" "podman"]; # Enable ‘sudo’ for the user.
     shell = pkgs.zsh;
   };
 
@@ -136,10 +168,11 @@
 
   # $ nix search wget
 
-  environment.systemPackages = with pkgs; [bintools-unwrapped polkit_gnome alsa-utils pamixer];
+  environment.systemPackages = with pkgs; [open-vm-tools vmfs-tools bintools-unwrapped xorg.xf86videovmware polkit_gnome alsa-utils pamixer];
   environment.pathsToLink = ["/libexec"];
   programs.nix-ld.enable = true;
-  programs.seahorse.enable = true;
+  programs.plotinus.enable = true;
+  #programs.seahorse.enable = true;
   # enable xdg desktop integration https://github.com/flatpak/xdg-desktop-portal/blob/master/README.md
   xdg = {
     portal = {
@@ -149,6 +182,7 @@
         xdg-desktop-portal-gtk
       ];
       gtkUsePortal = true;
+      wlr.enable = true;
     };
   };
 
@@ -157,13 +191,6 @@
   programs.sway = {
     enable = true;
     wrapperFeatures.gtk = true; # so that gtk works properly
-    extraPackages = with pkgs; [
-      swaylock
-      swayidle
-      wl-clipboard
-      fnott
-      foot
-    ];
   };
   programs.mtr.enable = true;
   # Enable the OpenSSH daemon.
@@ -181,7 +208,9 @@
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "21.11"; # Did you read the comment?
+  system.stateVersion = "22.05"; # Did you read the comment?
   nix.package = pkgs.nixUnstable;
-  nix.extraOptions = "experimental-features = nix-command flakes";
+  nix.extraOptions = ''
+    experimental-features = nix-command flakes
+  '';
 }

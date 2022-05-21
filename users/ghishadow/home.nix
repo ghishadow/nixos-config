@@ -1,27 +1,95 @@
 {
   config,
   pkgs,
+  lib,
+  inputs,
   overlays,
   ...
 }: {
+  # Pass these arguments to all imports
+  # _module.args = {
+  #   inherit pkgs overlays;
+  # };
+  imports = [
+    ./bat
+    ./foot
+    #./firefox
+  ];
+  systemd.user.sessionVariables = config.home.sessionVariables;
+  gtk = {
+    enable = true;
+    font = {
+      name = "JetBrainsMono Nerd Font";
+    };
+    theme = {
+      name = "Adwaita Dark";
+    };
+    iconTheme = {
+      name = "Adwaita";
+      #package = pkgs.papirus-icon-theme;
+    };
+  };
+  # Enable discovery of fonts from installed packages
+  fonts.fontconfig.enable = lib.mkForce true;
+  xdg = {
+    enable = true;
+    userDirs = {
+      enable = true;
+      createDirectories = true;
+    };
+    mime.enable = true;
+    mimeApps.enable = true;
+  };
+  home.enableNixpkgsReleaseCheck = true;
+
+  manual = {
+    html.enable = true;
+    manpages.enable = true;
+    json.enable = true;
+  };
+  home.stateVersion = "22.05";
   home.sessionVariables = {
     MOZ_ENABLE_WAYLAND = 1;
     XDG_CURRENT_DESKTOP = "sway";
     SDL_VIDEODRIVER = "wayland";
+    LANG = "en_US.UTF-8";
+    LC_CTYPE = "en_US.UTF-8";
+    LC_ALL = "en_US.UTF-8";
+    EDITOR = "nvim";
+    PAGER = "less -FirSwX";
+    GDK_BACKEND = "wayland";
     QT_QPA_PLATFORM = "wayland";
     WINIT_UNIX_BACKEND = "wayland";
     #MOZ_DISABLE_CONTENT_SANDBOX = 1;
   };
 
   home.packages = with pkgs; [
-    rustup
+    wofi
+    flyctl
+    swaybg
+    zlib
+    nix-index
+    wl-color-picker
+    wl-clipboard
+    wayland-protocols
+    piper
+    wlr-protocols
+    hare
+    nix-zsh-completions
+    #vulkan-tools
+    #inputs.hyprland.packages.x86_64-linux.default
+    glxinfo
+    nodejs
+    weechat
+    age
+    zotero
     stylua
+    tealdeer
     black
+    gnome.nautilus
     nodePackages.prettier
-    mercurial
     autotiling
     git-ignore
-    virt-viewer
     magic-wormhole
     cachix
     wayland
@@ -31,26 +99,26 @@
     jless
     glow
     asciinema
-    sublime4
     # secret stuff
     gnome.gnome-themes-extra
     gtk-engine-murrine
     delta
     gtk_engines
     libtool
-    cmake
+    # cmake
+    # meson
+    # ninja
     libvterm
     gnome.gnome-tweaks
     xdg-utils
     zathura
     libnotify
-    meson
-    ninja
     lsof
     tokei
     glib
     gtkmm4
     fish
+    fnott
     libsecret
     gnome.gnome-keyring
     gsettings-desktop-schemas
@@ -62,7 +130,8 @@
     sway-contrib.inactive-windows-transparency
     sway-contrib.grimshot
     grim
-    waybar
+    # libstdcxx5
+    sublime4
     sccache
     desktop-file-utils
     openssl
@@ -76,52 +145,145 @@
     ctags
     sqlite
     fd
-    foot
     ripgrep
     font-awesome
     gnumake
     unzip
     cached-nix-shell
-    neovim-nightly
     usbutils
-    home-manager
     gnupg
     libu2f-host
     opensc
     pcsctools
-    gh
-    #gcc
     mosh
-    clang_multi
+    #clang_multi
+    clang_13
+    clang-analyzer
+    clang-tools
+    clangStdenv
     file
-    just
     enchant
     gnome3.adwaita-icon-theme
     gnome3.gnome-settings-daemon
-    sway
+    cargo
     swaylock
     shellcheck
     bitwarden-cli
-    emacsPgtkNativeComp
+    #emacsPgtkNativeComp
     wget
     xorg.xprop
     xorg.xwininfo
     thefuck
-    # enable when webextension issue is fixed upstream #167785
-    firefox-wayland
     rust-analyzer
     zellij
     pciutils
     difftastic
+    nix-tree
+    git-crypt
+    nixpkgs-review
+    neovim-nightly
+    rnix-lsp
+    wlogout
   ];
 
-  #services.vscode-server.enable = true;
-
   services = {
-    lorri.enable = true;
-    gpg-agent = {enable = true;};
+    gnome-keyring.enable = true;
+    playerctld.enable = true;
+    swayidle.enable = true;
+    mpd.enable = true;
+    mpdris2 = {
+      enable = true;
+      notifications = true;
+    };
+    udiskie = {
+      enable = true;
+      automount = true;
+      notify = true;
+    };
+    # gpg-agent = {enable = true;};
   };
+  # wayland.windowManager.sway = {
+  #   enable = true;
+  # };
   programs = {
+    home-manager = {
+      enable = true;
+    };
+
+    ssh = {
+      enable = true;
+      compression = true;
+    };
+    aria2 = {
+      enable = true;
+    };
+    just = {
+      enable = true;
+      enableZshIntegration = true;
+    };
+
+    bottom = {
+      enable = true;
+    };
+
+    waybar = {
+      enable = true;
+      #systemd = true;
+    };
+    tiny = {
+      enable = true;
+      settings = {
+        servers = [
+          {
+            addr = "irc.libera.chat";
+            port = 6697;
+            tls = true;
+            realname = "Shadow";
+            nicks = ["ghishadow"];
+          }
+        ];
+        defaults = {
+          nicks = ["ghishadow"];
+          realname = "Shadow";
+          join = ["#hare" "#sway"];
+          tls = true;
+        };
+      };
+    };
+    gh = {
+      enable = true;
+      enableGitCredentialHelper = true;
+      settings = {
+        git_protocol = "https";
+        prompt = "enabled";
+        pager = "delta";
+        aliases = {
+          co = "pr checkout";
+          pv = "pr view";
+        };
+      };
+    };
+
+    firefox = {
+      enable = true;
+      package = pkgs.firefox-wayland.override {
+        forceWayland = true;
+        extraPolicies = {
+          ExtensionSettings = {};
+        };
+      };
+      #   extensions = with pkgs.nur.repos.rycee.firefox-addons; [
+      # privacy-badger
+      # ];
+    };
+
+    #neovim = {
+    # enable = true;
+    # viAlias = true;
+    # vimAlias = true;
+    # withNodeJs = true;
+    # withPython3 = true;
+    # };
     zoxide = {
       enable = true;
       enableZshIntegration = true;
@@ -130,6 +292,7 @@
       enable = true;
       enableZshIntegration = true;
       enableFuzzySearch = true;
+      keyScheme = "emacs";
     };
     keychain = {
       enableZshIntegration = true;
@@ -142,6 +305,7 @@
       enableAutosuggestions = true;
       enableCompletion = true;
       enableSyntaxHighlighting = true;
+      # enableVteIntegration = true;
       autocd = true;
       shellAliases = {
         e = "emacsclient -c -a '' $argv";
@@ -174,13 +338,29 @@
     };
     starship = {
       enable = true;
-      enableZshIntegration = true;
+      #enableZshIntegration = true;
+    };
+    topgrade = {
+      enable = true;
+      settings = {
+        assume_yes = true;
+        disable = [
+          "flutter"
+          "node"
+        ];
+        set_title = false;
+        cleanup = true;
+        commands = {
+          "Run garbage collection on Nix store" = "nix-collect-garbage";
+        };
+      };
     };
     git = {
       enable = true;
+      ignores = ["*~" "*.swp" "target"];
       userName = "Suraj Ghimire";
       userEmail = "suraj@ghishadow.com";
-      aliases = {gl = "pull";};
+      #aliases = {gl = "pull";};
       lfs = {
         enable = true;
       };
@@ -193,6 +373,8 @@
         gpg.format = "ssh";
         gpg.ssh.program = "${pkgs.openssh}/bin/ssh-keygen";
         core.pager = "delta";
+        color.ui = true;
+        github.user = "ghishadow";
         core.editor = "${pkgs.helix}/bin/hx";
         init.defaultBranch = "main";
         interactive.diffFilter = "delta --color-only";
@@ -205,16 +387,21 @@
     helix = {
       enable = true;
     };
-    bat.enable = true;
-    #gpg.enable = true;
     fzf = {
       enable = true;
       enableZshIntegration = true;
     };
+    pylint.enable = true;
     jq.enable = true;
     command-not-found.enable = true;
-    dircolors.enable = true;
-    htop.enable = true;
+    dircolors = {
+      enable = true;
+      #enableZshIntegration = true;
+    };
+    man.enable = true;
+    #mercurial = {
+    # enable = true;
+    # };
     info.enable = true;
     exa.enable = true;
     direnv = {

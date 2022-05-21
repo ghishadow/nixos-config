@@ -8,7 +8,6 @@ in
     buildInputs = [
       git
       nix-zsh-completions
-      neovim
     ];
     shellHook = ''
       export FLAKE="$(pwd)"

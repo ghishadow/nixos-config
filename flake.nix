@@ -6,16 +6,18 @@
     nixpkgs.url = "nixpkgs/nixos-unstable"; # primary nixpkgs
     nixpkgs-unstable.url = "nixpkgs/nixpkgs-unstable"; # for packages on the edge
     flake-utils.url = "github:numtide/flake-utils";
+    #hyprland = {
+    #  url = "github:viperML/Hyprland";
+    #  inputs.nixpkgs.follows = "nixpkgs";
+    #};
     home-manager.url = "github:nix-community/home-manager/master";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     #lapce-overlay.url = "github:ghishadow/lapce-overlay";
     agenix.url = "github:ryantm/agenix";
-    agenix.inputs.nixpkgs.follows = "nixpkgs";
-    #nixpkgs-wayland = {url = "github:nix-community/nixpkgs-wayland";};
+    nur.url = "github:nix-community/NUR";
+    # agenix.inputs.nixpkgs.follows = "nixpkgs";
     # only needed if you use as a package set:
-    #nixpkgs-wayland.inputs.nixpkgs.follows = "nixpkgs";
-    #nixpkgs-wayland.inputs.master.follows = "master";
-    neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
+    neovim-nightly.url = "github:nix-community/neovim-nightly-overlay";
     # Extras
     nixos-hardware.url = "github:nixos/nixos-hardware";
 
@@ -23,24 +25,41 @@
       url = "github:msteen/nixos-vscode-server";
       flake = false;
     };
-    emacs-overlay.url = "github:ghishadow/emacs-overlay";
+    emacs.url = "github:ghishadow/emacs-overlay";
     # Other packages
-    zig.url = "github:arqv/zig-overlay";
     #moonlight.url = "github:mozilla/nixpkgs-mozilla";
   };
 
-  outputs = {
+  outputs = inputs @ {
     self,
     nixpkgs,
     nixpkgs-unstable,
     home-manager,
     flake-utils,
+    agenix,
+    nur,
+    neovim-nightly,
+    emacs,
     ...
-  } @ inputs: let
+  }: let
+    # hosts = import ./hosts;
     system = "x86_64-linux";
+    vars = {
+      user = "ghishadow";
+      theme = "dark";
+    };
     pkgs = import nixpkgs {
       inherit system;
       config = {
+        nix = {
+          # add binary caches
+          binaryCachePublicKeys = [
+            "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+          ];
+          binaryCaches = [
+            "https://cache.nixos.org"
+          ];
+        };
         allowUnfree = true;
         gc = {
           automatic = true;
@@ -54,36 +73,47 @@
       };
     };
     overlays = [
-      inputs.emacs-overlay.overlay
-      inputs.neovim-nightly-overlay.overlay
-      (final: prev: {
-        # Zig doesn't export an overlay so we do it here
-        zig-master = inputs.zig.packages.${prev.system}.master.latest;
-      })
+      emacs.overlay
+      neovim-nightly.overlay
+      nur.overlay
+      #inputs.hyprland.overlay
       #inputs.lapce-overlay.overlay
       #inputs.moonlight.overlay
     ];
     lib = nixpkgs.lib;
   in {
+    # nixosConfigurations = builtins.mapAttrs
+    # (hostname: config:
+    #   (config(inputs // rec {
+    #     common-cfg = {
+    #       inherit system;
+    #       config.allowUnfree = true;
+    #     };
+    #     system = "x86_64-linux";
+    #     inherit vars;
+    #     overlays = overlays;
+
+    #     })).nixosConfiguration)
+    #   hosts;
     nixosConfigurations = {
       targus = lib.nixosSystem {
         inherit system;
 
         modules = [
+          agenix.nixosModule
           ({
             config,
             pkgs,
             ...
           }: {
             nixpkgs.overlays = overlays;
-            environment.systemPackages = with pkgs; [
-            ];
           })
           ./system/configuration.nix
           home-manager.nixosModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
+            home-manager.extraSpecialArgs = inputs // {inherit inputs;};
             home-manager.users.ghishadow =
               import ./users/ghishadow/home.nix;
           }
@@ -104,18 +134,18 @@
     #     };
     #   };
 
-    templates = {
-      full = {
-        path = ./.;
-        description = "A grossly incandescent nixos config";
-      };
-      minimal = {
-        path = ./templates/minimal;
-        description = "A grossly incandescent and minimal nixos config";
-      };
-    };
-    defaultTemplate = self.templates.minimal;
+    # templates = {
+    #   full = {
+    #     path = ./.;
+    #     description = "A grossly incandescent nixos config";
+    #   };
+    #   minimal = {
+    #     path = ./templates/minimal;
+    #     description = "A grossly incandescent and minimal nixos config";
+    #   };
+    # };
+    # templates.default = self.templates.minimal;
 
-    devShell."${system}" = import ./shell.nix {inherit pkgs;};
+    devShells."${system}".default = import ./shell.nix {inherit pkgs;};
   };
 }

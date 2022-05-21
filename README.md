@@ -4,12 +4,12 @@
 
 |                |                                                          |
 |----------------|----------------------------------------------------------|
-| **Shell:**     | nu                                             |
-| **DM:**        | lightdm + lightdm-mini-greeter                           |
+| **Shell:**     | nu/zsh                                             |
+| **DM:**        | nodm (maybe use greetd)                          |
 | **WM:**        | sway + waybar                                          |
-| **Editor:**    | [Doom Emacs][doom-emacs]                                 |
+| **Editor:**    | Lapce                                 |
 | **Terminal:**  | foot                                                       |
 | **Launcher:**  | fuzzel                                                     |
 | **Browser:**   | firefox                                                  |
 
------
+------
