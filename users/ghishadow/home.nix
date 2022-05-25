@@ -64,9 +64,13 @@
   };
 
   home.packages = with pkgs; [
-    wofi
+    gsettings-desktop-schemas
+    wdisplays
+    cosign
     flyctl
+    perf-tools
     swaybg
+    plotinus
     zlib
     nix-index
     wl-color-picker
@@ -74,12 +78,11 @@
     wayland-protocols
     piper
     wlr-protocols
+    xdg-desktop-portal-wlr
+    xdg-desktop-portal-gtk
     hare
-    nix-zsh-completions
-    #vulkan-tools
-    #inputs.hyprland.packages.x86_64-linux.default
+    vulkan-tools
     glxinfo
-    nodejs
     weechat
     age
     zotero
@@ -120,7 +123,6 @@
     fish
     fnott
     libsecret
-    gnome.gnome-keyring
     gsettings-desktop-schemas
     ffmpeg
     yt-dlp
@@ -169,12 +171,11 @@
     swaylock
     shellcheck
     bitwarden-cli
-    #emacsPgtkNativeComp
+    emacsPgtkNativeComp
     wget
     xorg.xprop
     xorg.xwininfo
     thefuck
-    rust-analyzer
     zellij
     pciutils
     difftastic
@@ -272,9 +273,9 @@
           ExtensionSettings = {};
         };
       };
-      #   extensions = with pkgs.nur.repos.rycee.firefox-addons; [
-      # privacy-badger
-      # ];
+      extensions = with pkgs.nur.repos.rycee.firefox-addons; [
+        privacy-badger
+      ];
     };
 
     #neovim = {
@@ -305,7 +306,7 @@
       enableAutosuggestions = true;
       enableCompletion = true;
       enableSyntaxHighlighting = true;
-      # enableVteIntegration = true;
+      enableVteIntegration = true;
       autocd = true;
       shellAliases = {
         e = "emacsclient -c -a '' $argv";
@@ -318,27 +319,15 @@
       };
       oh-my-zsh = {
         enable = true;
-        plugins = ["git" "thefuck" "docker" "docker-compose" "direnv" "history-substring-search"];
+        plugins = ["git" "thefuck" "docker" "docker-compose" "history-substring-search"];
       };
-      plugins = [
-        {
-          name = "zsh-nix-shell";
-          file = "nix-shell.plugin.zsh";
-          src = pkgs.fetchFromGitHub {
-            owner = "chisui";
-            repo = "zsh-nix-shell";
-            rev = "v0.5.0";
-            sha256 = "0za4aiwwrlawnia4f29msk822rj9bgcygw6a8a6iikiwzjjz0g91";
-          };
-        }
-      ];
       initExtra = ''
         eval "$(starship init zsh --print-full-init)"
       '';
     };
     starship = {
       enable = true;
-      #enableZshIntegration = true;
+      enableZshIntegration = true;
     };
     topgrade = {
       enable = true;
@@ -360,7 +349,6 @@
       ignores = ["*~" "*.swp" "target"];
       userName = "Suraj Ghimire";
       userEmail = "suraj@ghishadow.com";
-      #aliases = {gl = "pull";};
       lfs = {
         enable = true;
       };
@@ -396,7 +384,7 @@
     command-not-found.enable = true;
     dircolors = {
       enable = true;
-      #enableZshIntegration = true;
+      enableZshIntegration = true;
     };
     man.enable = true;
     #mercurial = {
