@@ -17,28 +17,37 @@
     })
   ];
 
-  nixpkgs.config.packageOverrides = pkgs:
-    pkgs.lib.recursiveUpdate pkgs {
-      linuxKernel.kernels.linux_5_17 = pkgs.linuxKernel.kernels.linux_5_17.override {
-        #  extraConfig = ''
-        #    KGDB y
-        # '';
-      };
-    };
+  #nixpkgs.config.packageOverrides = pkgs:
+  #  pkgs.lib.recursiveUpdate pkgs {
+  #    linuxKernel.kernels.linux_5_17 = pkgs.linuxKernel.kernels.linux_5_17.override {
+  #  extraConfig = ''
+  #    KGDB y
+  # '';
+  #    };
+  # };
   boot.kernelPackages = pkgs.linuxKernel.packages.linux_5_17;
-  #boot.kernelModules = [ "vmwgfx"];
+  boot.kernelModules = ["vmwgfx"];
+  #boot.binfmt.emulatedSystems = ["wasm32-wasi" "aarch64-linux"];
+  boot.kernel.sysctl = {
+    "vm.swappiness" = 0;
+  };
+  boot.cleanTmpDir = true;
   # Use the systemd-boot EFI boot loader.
-  # environment.pathsToLink = [ "${pkgs.xorg.libxcb}/lib/" ];
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-  hardware.opengl = {
+  boot.loader.systemd-boot = {
     enable = true;
-    driSupport = true;
-    driSupport32Bit = true;
-    extraPackages = with pkgs; [
-      vaapiVdpau
-      libvdpau-va-gl
-    ];
+    configurationLimit = 4;
+  };
+  boot.loader.efi.canTouchEfiVariables = true;
+  hardware = {
+    uinput.enable = true;
+    opengl = {
+      enable = true;
+      driSupport = true;
+      extraPackages = with pkgs; [
+        vaapiVdpau
+        libvdpau-va-gl
+      ];
+    };
   };
 
   networking.hostName = "anya"; # Define your hostname.
@@ -54,21 +63,21 @@
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
   # Per-interface useDHCP will be mandatory in the future, so this generated config
   # replicates the default behaviour.
-  networking.useDHCP = false;
-  networking.interfaces.ens33.useDHCP = true;
-  # networking.firewall.checkReversePath = "loose";
-  networking.networkmanager.enable = true;
-
+  networking = {
+    useDHCP = false;
+    #tcpcrypt.enable = true;
+    enableIPv6 = true;
+    interfaces.ens33.useDHCP = true;
+    # networking.firewall.checkReversePath = "loose";
+    networkmanager.enable = true;
+  };
   # enable the tailscale daemon; this will do a variety of tasks:j  # 1. create the TUN network devicej  # 2. setup some IP routes to route through the TUN
-  #services.tailscale = {enable = true;};
+  services.tailscale = {enable = true;};
   services.resolved.enable = true;
-  networking.useNetworkd = true;
+  networking.useNetworkd = false;
   # run while the tailscale service is running.
   networking.interfaces.tailscale0.useDHCP = lib.mkDefault true;
 
-  nix.autoOptimiseStore = true;
-
-  environment.variables.EDITOR = "nvim";
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
@@ -82,18 +91,40 @@
 
   fonts.fonts = with pkgs; [
     # nerd font
-    (nerdfonts.override {fonts = ["FiraCode" "JetBrainsMono"];})
+    (nerdfonts.override {fonts = ["JetBrainsMono"];})
   ];
 
+  location.provider = "geoclue2";
   # Enable the X11 windowing system.
   services.xserver.enable = false;
 
-  # Keyring
-  services.gnome.gnome-keyring.enable = true;
-
   services.vscode-server.enable = true;
 
+  powerManagement = {
+    enable = true;
+    cpuFreqGovernor = "performance";
+  };
   environment = {
+    systemPackages = with pkgs; [
+      vmfs-tools
+      bintools-unwrapped
+      polkit_gnome
+      alsa-utils
+      pamixer
+    ];
+
+    pathsToLink = [
+      #"${pkgs.xorg.libxcb}/lib/"
+      "/libexec"
+    ];
+    # default libc, available graphene-hardened, jemalloc mimalloc, scudo
+    memoryAllocator.provider = "libc";
+    homeBinInPath = true;
+    localBinInPath = true;
+    #noXlibs = true;
+    variables = {
+      EDITOR = "nvim";
+    };
     loginShellInit = ''
       if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
       export WLR_NO_HARDWARE_CURSORS=1
@@ -111,8 +142,9 @@
   #services.xserver.desktopManager.gnome.enable = true;
   services.gnome.core-utilities.enable = false;
   #services.xserver.updateDbusEnvironment = true;
-  nixpkgs.config.allowUnfree = true;
-
+  nixpkgs = {
+    config.allowUnfree = true;
+  };
   services.xserver.videoDrivers = ["vmware"];
   # Configure keymap in X11
   # services.xserver.layout = "us";
@@ -168,11 +200,16 @@
 
   # $ nix search wget
 
-  environment.systemPackages = with pkgs; [open-vm-tools vmfs-tools bintools-unwrapped xorg.xf86videovmware polkit_gnome alsa-utils pamixer];
-  environment.pathsToLink = ["/libexec"];
-  programs.nix-ld.enable = true;
-  programs.plotinus.enable = true;
-  #programs.seahorse.enable = true;
+  programs = {
+    ccache.enable = true;
+    sway = {
+      enable = true;
+      wrapperFeatures.gtk = true; # so that gtk works properly
+    };
+    mtr.enable = true;
+    nix-ld.enable = true;
+    plotinus.enable = true;
+  };
   # enable xdg desktop integration https://github.com/flatpak/xdg-desktop-portal/blob/master/README.md
   xdg = {
     portal = {
@@ -186,16 +223,8 @@
     };
   };
 
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  programs.sway = {
-    enable = true;
-    wrapperFeatures.gtk = true; # so that gtk works properly
-  };
-  programs.mtr.enable = true;
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
-  #services.vmwareGuest.enable = true;
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
@@ -209,8 +238,14 @@
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "22.05"; # Did you read the comment?
-  nix.package = pkgs.nixUnstable;
-  nix.extraOptions = ''
-    experimental-features = nix-command flakes
-  '';
+  nix = {
+    settings = {
+      show-trace = true;
+    };
+    autoOptimiseStore = true;
+    package = pkgs.nixUnstable;
+    extraOptions = ''
+      experimental-features = nix-command flakes
+    '';
+  };
 }
