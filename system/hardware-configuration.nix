@@ -10,8 +10,8 @@
 }: {
   imports = [];
 
-  boot.initrd.availableKernelModules = ["xhci_pci" "vmwgfx" "usbhid" "ata_piix" "mptspi" "uhci_hcd" "ehci_pci" "sd_mod" "sr_mod"];
-  boot.initrd.kernelModules = ["vmwgfx vmw_balloon vmw_pvscsi vsock vmw_vsock_vmci_transport uinput"];
+  boot.initrd.availableKernelModules = ["xhci_pci" "usbhid" "ata_piix" "mptspi" "uhci_hcd" "ehci_pci" "sd_mod" "sr_mod"];
+  boot.initrd.kernelModules = ["vmw_balloon vmw_pvscsi vsock vmw_vsock_vmci_transport uinput"];
   boot.kernelModules = [];
   boot.extraModulePackages = [];
 

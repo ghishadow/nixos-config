@@ -25,8 +25,8 @@
   # '';
   #    };
   # };
-  boot.kernelPackages = pkgs.linuxKernel.packages.linux_5_17;
-  boot.kernelModules = ["vmwgfx"];
+  boot.kernelPackages = pkgs.linuxKernel.packages.linux_5_18;
+  # boot.kernelModules = ["vmwgfx"];
   #boot.binfmt.emulatedSystems = ["wasm32-wasi" "aarch64-linux"];
   boot.kernel.sysctl = {
     "vm.swappiness" = 0;
@@ -55,11 +55,19 @@
 
   # Set your time zone.
   time.timeZone = "Asia/Kolkata";
-  virtualisation.vmware.guest.enable = true;
-  virtualisation.docker.enable = true;
-  virtualisation.podman.enable = false;
-  virtualisation.podman.dockerSocket.enable = true;
-  virtualisation.podman.defaultNetwork.dnsname.enable = true;
+  virtualisation = {
+    vmware.guest.enable = true;
+    vmware.guest.headless = true;
+    docker.enable = false;
+    #docker.autoPrune.enable = true;
+    #docker.autoPrune.dates = "weekly";
+    docker.rootless.enable = true;
+    docker.rootless.setSocketVariable = true;
+    #podman.enable = true;
+    #podman.dockerCompat = true;
+    #podman.dockerSocket.enable = true;
+    #podman.defaultNetwork.dnsname.enable = true;
+  };
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
   # Per-interface useDHCP will be mandatory in the future, so this generated config
   # replicates the default behaviour.
@@ -72,8 +80,14 @@
     networkmanager.enable = true;
   };
   # enable the tailscale daemon; this will do a variety of tasks:j  # 1. create the TUN network devicej  # 2. setup some IP routes to route through the TUN
-  services.tailscale = {enable = true;};
-  services.resolved.enable = true;
+  services = {
+    # tailscale = {enable = true;};
+    resolved.enable = true;
+    gnome = {
+      gnome-keyring.enable = true;
+      gnome-remote-desktop.enable = true;
+    };
+  };
   networking.useNetworkd = false;
   # run while the tailscale service is running.
   networking.interfaces.tailscale0.useDHCP = lib.mkDefault true;
@@ -145,7 +159,7 @@
   nixpkgs = {
     config.allowUnfree = true;
   };
-  services.xserver.videoDrivers = ["vmware"];
+  services.xserver.videoDrivers = ["modesetting"];
   # Configure keymap in X11
   # services.xserver.layout = "us";
   # services.xserver.xkbOptions = "eurosign:e";
@@ -202,9 +216,13 @@
 
   programs = {
     ccache.enable = true;
+    xwayland.enable = false;
     sway = {
       enable = true;
-      wrapperFeatures.gtk = true; # so that gtk works properly
+      wrapperFeatures = {
+        base = true;
+        gtk = true; # so that gtk works properly
+      };
     };
     mtr.enable = true;
     nix-ld.enable = true;
@@ -212,6 +230,7 @@
   };
   # enable xdg desktop integration https://github.com/flatpak/xdg-desktop-portal/blob/master/README.md
   xdg = {
+    autostart.enable = true;
     portal = {
       enable = true;
       extraPortals = with pkgs; [
@@ -237,10 +256,10 @@
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "22.05"; # Did you read the comment?
+  system.stateVersion = "22.11"; # Did you read the comment?
   nix = {
     settings = {
-      show-trace = true;
+      # show-trace = true;
     };
     autoOptimiseStore = true;
     package = pkgs.nixUnstable;

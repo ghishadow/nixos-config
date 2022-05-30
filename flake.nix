@@ -6,11 +6,7 @@
     nixpkgs.url = "nixpkgs/nixos-unstable"; # primary nixpkgs
     nixpkgs-unstable.url = "nixpkgs/nixpkgs-unstable"; # for packages on the edge
     flake-utils.url = "github:numtide/flake-utils";
-    #hyprland = {
-    #  url = "github:viperML/Hyprland";
-    #  inputs.nixpkgs.follows = "nixpkgs";
-    #};
-    home-manager.url = "github:nix-community/home-manager/master";
+    home-manager.url = "github:ghishadow/home-manager/main";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     #lapce-overlay.url = "github:ghishadow/lapce-overlay";
     agenix.url = "github:ryantm/agenix";
@@ -76,7 +72,6 @@
       emacs.overlay
       neovim-nightly.overlay
       nur.overlay
-      #inputs.hyprland.overlay
       #inputs.lapce-overlay.overlay
       #inputs.moonlight.overlay
     ];
