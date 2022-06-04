@@ -15,7 +15,7 @@
     # only needed if you use as a package set:
     neovim-nightly.url = "github:nix-community/neovim-nightly-overlay";
     # Extras
-    nixos-hardware.url = "github:nixos/nixos-hardware";
+    nixos-hardware.url = "github:NixOS/nixos-hardware/master";
 
     vscode-server = {
       url = "github:msteen/nixos-vscode-server";

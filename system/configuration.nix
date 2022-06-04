@@ -56,8 +56,8 @@
   # Set your time zone.
   time.timeZone = "Asia/Kolkata";
   virtualisation = {
-    vmware.guest.enable = true;
-    # vmware.guest.headless = true;
+    #vmware.guest.enable = true;
+    vmware.guest.headless = true;
     docker.enable = false;
     #docker.autoPrune.enable = true;
     #docker.autoPrune.dates = "weekly";

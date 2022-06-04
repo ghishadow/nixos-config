@@ -66,9 +66,10 @@
   home.packages = with pkgs; [
     gsettings-desktop-schemas
     wdisplays
-    #pinentry_ncurses
+    pinentry-curses
     cosign
     flyctl
+    mesa-demos
     perf-tools
     swaybg
     plotinus
