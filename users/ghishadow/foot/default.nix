@@ -6,16 +6,16 @@
     };
     settings = {
       main = {
-        shell = "nu";
+        shell = "zsh";
         term = "xterm-256color";
-        font = "JetBrains Mono Nerd Font:size=11";
+        font = "Martian Mono:size=11";
         dpi-aware = true;
       };
       #url = {
       # launch = xdg-open ${url};
       # };
       colors = {
-        alpha = 0.90;
+        alpha = 0.70;
         foreground = "d9e0ee";
         background = "1e1e2e";
         regular0 = "6e6c7e"; # black

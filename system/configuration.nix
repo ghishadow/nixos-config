@@ -19,7 +19,7 @@
 
   #nixpkgs.config.packageOverrides = pkgs:
   #  pkgs.lib.recursiveUpdate pkgs {
-  #    linuxKernel.kernels.linux_5_17 = pkgs.linuxKernel.kernels.linux_5_17.override {
+  #    linuxKernel.kernels.linux_5_18 = pkgs.linuxKernel.kernels.linux_5_18.override {
   #  extraConfig = ''
   #    KGDB y
   # '';
@@ -27,7 +27,7 @@
   # };
   boot.kernelPackages = pkgs.linuxKernel.packages.linux_5_18;
   # boot.kernelModules = ["vmwgfx"];
-  #boot.binfmt.emulatedSystems = ["wasm32-wasi" "aarch64-linux"];
+  boot.binfmt.emulatedSystems = ["wasm32-wasi" "aarch64-linux"];
   boot.kernel.sysctl = {
     "vm.swappiness" = 0;
   };
@@ -57,7 +57,7 @@
   time.timeZone = "Asia/Kolkata";
   virtualisation = {
     vmware.guest.enable = true;
-    vmware.guest.headless = true;
+    # vmware.guest.headless = true;
     docker.enable = false;
     #docker.autoPrune.enable = true;
     #docker.autoPrune.dates = "weekly";

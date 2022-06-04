@@ -47,7 +47,7 @@
     manpages.enable = true;
     json.enable = true;
   };
-  home.stateVersion = "22.05";
+  home.stateVersion = "22.11";
   home.sessionVariables = {
     MOZ_ENABLE_WAYLAND = 1;
     XDG_CURRENT_DESKTOP = "sway";
@@ -66,6 +66,7 @@
   home.packages = with pkgs; [
     gsettings-desktop-schemas
     wdisplays
+    #pinentry_ncurses
     cosign
     flyctl
     perf-tools
@@ -75,14 +76,13 @@
     nix-index
     wl-color-picker
     wl-clipboard
-    wayland-protocols
     piper
     wlr-protocols
     xdg-desktop-portal-wlr
     xdg-desktop-portal-gtk
     hare
     vulkan-tools
-    glxinfo
+    hwinfo
     weechat
     age
     zotero
@@ -95,7 +95,6 @@
     git-ignore
     magic-wormhole
     cachix
-    wayland
     bind
     helvum
     neovide
@@ -126,7 +125,7 @@
     gsettings-desktop-schemas
     ffmpeg
     yt-dlp
-    termusic
+    cmus
     cliphist
     lazygit
     sway-contrib.inactive-windows-transparency
@@ -167,7 +166,6 @@
     enchant
     gnome3.adwaita-icon-theme
     gnome3.gnome-settings-daemon
-    cargo
     swaylock
     shellcheck
     bitwarden-cli
@@ -185,10 +183,10 @@
     neovim-nightly
     rnix-lsp
     wlogout
+    playerctl
   ];
 
   services = {
-    gnome-keyring.enable = true;
     playerctld.enable = true;
     swayidle.enable = true;
     mpd.enable = true;
@@ -229,7 +227,6 @@
 
     waybar = {
       enable = true;
-      #systemd = true;
     };
     tiny = {
       enable = true;
