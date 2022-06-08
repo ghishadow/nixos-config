@@ -5,11 +5,20 @@
   config,
   pkgs,
   lib,
+  modulesPath,
   ...
-}: {
+}: 
+with lib;
+let 
+  nixos-wsl = import ./nixos-wsl;
+in 
+{
   imports = [
     # Include the results of the hardware scan.
-    ./modules/mpv.nix
+    "${modulesPath}/profiles/minimal.nix"
+
+    nixos-wsl.nixosModules.wsl
+    
     ./hardware-configuration.nix
     (fetchTarball {
       url = "https://github.com/msteen/nixos-vscode-server/tarball/master";
@@ -17,6 +26,16 @@
     })
   ];
 
+  
+  wsl = {
+    enable = true;
+    automountPath = "/mnt";
+    defaultUser = "ghishadow";
+    startMenuLaunchers = true;
+
+    # Enable integration with Docker Desktop (needs to be installed)
+    # docker.enable = true;
+  };
   #nixpkgs.config.packageOverrides = pkgs:
   #  pkgs.lib.recursiveUpdate pkgs {
   #    linuxKernel.kernels.linux_5_18 = pkgs.linuxKernel.kernels.linux_5_18.override {
@@ -33,11 +52,6 @@
   };
   boot.cleanTmpDir = true;
   # Use the systemd-boot EFI boot loader.
-  boot.loader.systemd-boot = {
-    enable = true;
-    configurationLimit = 4;
-  };
-  boot.loader.efi.canTouchEfiVariables = true;
   hardware = {
     uinput.enable = true;
     opengl = {
@@ -57,7 +71,6 @@
   time.timeZone = "Asia/Kolkata";
   virtualisation = {
     #vmware.guest.enable = true;
-    vmware.guest.headless = true;
     docker.enable = false;
     #docker.autoPrune.enable = true;
     #docker.autoPrune.dates = "weekly";
@@ -71,27 +84,16 @@
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
   # Per-interface useDHCP will be mandatory in the future, so this generated config
   # replicates the default behaviour.
-  networking = {
-    useDHCP = false;
-    #tcpcrypt.enable = true;
-    enableIPv6 = true;
-    interfaces.ens33.useDHCP = true;
-    # networking.firewall.checkReversePath = "loose";
-    networkmanager.enable = true;
-  };
-  # enable the tailscale daemon; this will do a variety of tasks:j  # 1. create the TUN network devicej  # 2. setup some IP routes to route through the TUN
   services = {
     # tailscale = {enable = true;};
-    resolved.enable = true;
+    #resolved.enable = true;
     gnome = {
       gnome-keyring.enable = true;
       gnome-remote-desktop.enable = true;
     };
   };
-  networking.useNetworkd = false;
-  # run while the tailscale service is running.
-  networking.interfaces.tailscale0.useDHCP = lib.mkDefault true;
-
+  #networking.useNetworkd = false;
+   
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
@@ -259,7 +261,7 @@
   system.stateVersion = "22.11"; # Did you read the comment?
   nix = {
     settings = {
-      # show-trace = true;
+      show-trace = true;
     };
     autoOptimiseStore = true;
     package = pkgs.nixUnstable;

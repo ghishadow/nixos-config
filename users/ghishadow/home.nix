@@ -90,7 +90,6 @@
     stylua
     tealdeer
     black
-    gnome.nautilus
     nodePackages.prettier
     autotiling
     git-ignore
@@ -133,12 +132,10 @@
     sway-contrib.grimshot
     grim
     # libstdcxx5
-    sublime4
     sccache
     desktop-file-utils
     openssl
     editorconfig-core-c
-    cinnamon.nemo
     diskonaut
     fuzzel
     dua
@@ -170,7 +167,6 @@
     swaylock
     shellcheck
     bitwarden-cli
-    emacsPgtkNativeComp
     wget
     xorg.xprop
     xorg.xwininfo
