@@ -9,7 +9,7 @@
 }: {
   imports = [
     # Include the results of the hardware scan.
-    ./modules/mpv.nix
+    #./modules/mpv.nix
     ./hardware-configuration.nix
     (fetchTarball {
       url = "https://github.com/msteen/nixos-vscode-server/tarball/master";
@@ -46,6 +46,7 @@
       extraPackages = with pkgs; [
         vaapiVdpau
         libvdpau-va-gl
+        libGL
       ];
     };
   };
@@ -56,17 +57,17 @@
   # Set your time zone.
   time.timeZone = "Asia/Kolkata";
   virtualisation = {
-    #vmware.guest.enable = true;
-    vmware.guest.headless = true;
+    vmware.guest.enable = true;
+    #vmware.guest.headless = true;
     docker.enable = false;
     #docker.autoPrune.enable = true;
     #docker.autoPrune.dates = "weekly";
-    docker.rootless.enable = true;
-    docker.rootless.setSocketVariable = true;
-    #podman.enable = true;
-    #podman.dockerCompat = true;
-    #podman.dockerSocket.enable = true;
-    #podman.defaultNetwork.dnsname.enable = true;
+    #docker.rootless.enable = true;
+    #docker.rootless.setSocketVariable = true;
+    podman.enable = true;
+    podman.dockerCompat = true;
+    podman.dockerSocket.enable = true;
+    podman.defaultNetwork.dnsname.enable = true;
   };
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
   # Per-interface useDHCP will be mandatory in the future, so this generated config
@@ -81,16 +82,18 @@
   };
   # enable the tailscale daemon; this will do a variety of tasks:j  # 1. create the TUN network devicej  # 2. setup some IP routes to route through the TUN
   services = {
+    xserver.enable = false;
     # tailscale = {enable = true;};
     resolved.enable = true;
     gnome = {
       gnome-keyring.enable = true;
       gnome-remote-desktop.enable = true;
+      gnome-settings-daemon.enable = true;
     };
   };
   networking.useNetworkd = false;
   # run while the tailscale service is running.
-  networking.interfaces.tailscale0.useDHCP = lib.mkDefault true;
+  #networking.interfaces.tailscale0.useDHCP = lib.mkDefault true;
 
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
@@ -110,7 +113,6 @@
 
   location.provider = "geoclue2";
   # Enable the X11 windowing system.
-  services.xserver.enable = false;
 
   services.vscode-server.enable = true;
 
@@ -194,7 +196,7 @@
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.ghishadow = {
     isNormalUser = true;
-    extraGroups = ["wheel" "video" "audio" "docker" "podman"]; # Enable ‘sudo’ for the user.
+    extraGroups = ["wheel" "video" "audio" "sway" "podman"]; # Enable ‘sudo’ for the user.
     shell = pkgs.zsh;
   };
 

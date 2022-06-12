@@ -67,6 +67,7 @@
     gsettings-desktop-schemas
     wdisplays
     pinentry-curses
+    glew-egl
     cosign
     flyctl
     mesa-demos
@@ -74,6 +75,7 @@
     swaybg
     plotinus
     zlib
+    miniserve
     nix-index
     wl-color-picker
     wl-clipboard
@@ -159,10 +161,11 @@
     pcsctools
     mosh
     #clang_multi
-    clang_13
+    clang_14
     clang-analyzer
     clang-tools
     clangStdenv
+    llvmPackages_14.stdenv
     file
     enchant
     gnome3.adwaita-icon-theme
@@ -170,7 +173,7 @@
     swaylock
     shellcheck
     bitwarden-cli
-    emacsPgtkNativeComp
+    # emacsPgtkNativeComp
     wget
     xorg.xprop
     xorg.xwininfo
