@@ -79,6 +79,7 @@
     nix-index
     wl-color-picker
     wl-clipboard
+    fnm
     piper
     wlr-protocols
     xdg-desktop-portal-wlr
