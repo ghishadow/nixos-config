@@ -13,16 +13,17 @@
   imports = [
     ./bat
     ./foot
+    # ./zellij
     #./firefox
   ];
   systemd.user.sessionVariables = config.home.sessionVariables;
   gtk = {
     enable = true;
     font = {
-      name = "JetBrainsMono Nerd Font";
+      name = "Martian Mono";
     };
     theme = {
-      name = "Adwaita Dark";
+      name = "Catppuccin";
     };
     iconTheme = {
       name = "Adwaita";
@@ -69,12 +70,14 @@
     pinentry-curses
     glew-egl
     cosign
+    catppuccin-gtk
     flyctl
     mesa-demos
     perf-tools
     swaybg
     plotinus
     zlib
+    patchelf
     miniserve
     nix-index
     wl-color-picker
@@ -179,7 +182,6 @@
     xorg.xprop
     xorg.xwininfo
     thefuck
-    zellij
     pciutils
     difftastic
     nix-tree
@@ -218,6 +220,7 @@
       enable = true;
       compression = true;
     };
+
     aria2 = {
       enable = true;
     };
