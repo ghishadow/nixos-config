@@ -13,20 +13,20 @@
   imports = [
     ./bat
     ./foot
-    # ./zellij
+    ./zellij
     #./firefox
   ];
   systemd.user.sessionVariables = config.home.sessionVariables;
   gtk = {
     enable = true;
     font = {
-      name = "Martian Mono";
+      name = "Inter";
     };
     theme = {
-      name = "Catppuccin";
+      name = "Catppuccin-dark";
     };
     iconTheme = {
-      name = "Adwaita";
+      name = "Papirus-Dark";
       #package = pkgs.papirus-icon-theme;
     };
   };
@@ -51,6 +51,18 @@
   home.stateVersion = "22.11";
   home.sessionVariables = {
     MOZ_ENABLE_WAYLAND = 1;
+    MOZ_WEBRENDER = 1;
+    MOZ_DBUS_REMOTE = 1;
+    CARGO_HOME = "\${XDG_DATA_HOME}/cargo";
+    GNUPGHOME = "\${XDG_DATA_HOME}/gnupg";
+    GTK2_RC_FILES = "\${XDG_CONFIG_HOME}/gtk-2.0/gtkrc";
+    NODE_REPL_HISTORY = "\${XDG_DATA_HOME}/node_repl_history";
+    NPM_CONFIG_USERCONFIG = "\${XDG_CONFIG_HOME}/npm/npmrc";
+    # ZSH="\${XDG_DATA_HOME}/oh-my-zsh";
+    PYTHONSTARTUP = "\${XDG_CONFIG_HOME}/python/pythonrc";
+    RUSTUP_HOME = "\${XDG_DATA_HOME}/rustup";
+    HISTFILE = "\${XDG_STATE_HOME}/zsh/history";
+    ZDOTDIR = "\{$XDG_CONFIG_HOME}/zsh";
     XDG_CURRENT_DESKTOP = "sway";
     SDL_VIDEODRIVER = "wayland";
     LANG = "en_US.UTF-8";
@@ -65,38 +77,55 @@
   };
 
   home.packages = with pkgs; [
+    # ui font
+    inter
     gsettings-desktop-schemas
     wdisplays
+    kleopatra
+    fontforge
+    pipes
+    gnome.zenity
+    gnome.nautilus
+    python3
+    sumneko-lua-language-server
     pinentry-curses
-    glew-egl
+    btop
     cosign
+    chezmoi
+    wallutils
+    graphviz
+    papirus-folders
+    papirus-icon-theme
+    sunpaper
     catppuccin-gtk
+    qutebrowser
     flyctl
     mesa-demos
+    neovide
     perf-tools
-    swaybg
     plotinus
     zlib
     patchelf
     miniserve
     nix-index
+    sd
     wl-color-picker
     wl-clipboard
     fnm
+    bun
     piper
     wlr-protocols
     xdg-desktop-portal-wlr
     xdg-desktop-portal-gtk
-    hare
+    harec
     vulkan-tools
     hwinfo
-    weechat
     age
     zotero
     stylua
     tealdeer
     black
-    gnome.nautilus
+    ranger
     nodePackages.prettier
     autotiling
     git-ignore
@@ -104,7 +133,6 @@
     cachix
     bind
     helvum
-    neovide
     jless
     glow
     asciinema
@@ -127,6 +155,7 @@
     glib
     gtkmm4
     fish
+    wezterm
     fnott
     libsecret
     gsettings-desktop-schemas
@@ -144,7 +173,6 @@
     desktop-file-utils
     openssl
     editorconfig-core-c
-    cinnamon.nemo
     diskonaut
     fuzzel
     dua
@@ -187,7 +215,7 @@
     nix-tree
     git-crypt
     nixpkgs-review
-    neovim-nightly
+    vscode-extensions.vadimcn.vscode-lldb
     rnix-lsp
     wlogout
     playerctl
@@ -206,15 +234,19 @@
       automount = true;
       notify = true;
     };
-    # gpg-agent = {enable = true;};
+    gpg-agent = {
+      enable = true;
+      enableZshIntegration = true;
+      pinentryFlavor = "qt";
+    };
   };
   # wayland.windowManager.sway = {
   #   enable = true;
   # };
   programs = {
-    home-manager = {
-      enable = true;
-    };
+    #home-manager = {
+    #   enable = true;
+    #};
 
     ssh = {
       enable = true;
@@ -283,13 +315,13 @@
       ];
     };
 
-    #neovim = {
-    # enable = true;
-    # viAlias = true;
-    # vimAlias = true;
-    # withNodeJs = true;
-    # withPython3 = true;
-    # };
+    neovim = {
+      enable = true;
+      viAlias = true;
+      vimAlias = true;
+      withNodeJs = true;
+      withPython3 = true;
+    };
     zoxide = {
       enable = true;
       enableZshIntegration = true;
@@ -307,13 +339,14 @@
     };
 
     zsh = {
-      enable = true;
+      enable = false;
       enableAutosuggestions = true;
       enableCompletion = true;
       enableSyntaxHighlighting = true;
       enableVteIntegration = true;
       autocd = true;
       shellAliases = {
+        wget = "wget --hsts-file=\${XDG_DATA_HOME}/wget-hsts";
         e = "emacsclient -c -a '' $argv";
         sl = "exa";
         ls = "exa";
@@ -333,6 +366,9 @@
     starship = {
       enable = true;
       enableZshIntegration = true;
+      settings = {
+        add_newline = false;
+      };
     };
     topgrade = {
       enable = true;
@@ -340,7 +376,7 @@
         assume_yes = true;
         disable = [
           "flutter"
-          "node"
+          "nix"
         ];
         set_title = false;
         cleanup = true;
@@ -363,8 +399,8 @@
       };
       extraConfig = {
         diff.algorithm = "histogram";
-        gpg.format = "ssh";
-        gpg.ssh.program = "${pkgs.openssh}/bin/ssh-keygen";
+        #gpg.format = "ssh";
+        #gpg.ssh.program = "${pkgs.openssh}/bin/ssh-keygen";
         core.pager = "delta";
         color.ui = true;
         github.user = "ghishadow";

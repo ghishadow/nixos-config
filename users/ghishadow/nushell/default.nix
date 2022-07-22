@@ -8,14 +8,14 @@
       main = {
         shell = "zsh";
         term = "xterm-256color";
-        font = "BerkeleyMonoVariable Nerd Font:size=11";
+        font = "Martian Mono:size=11";
         dpi-aware = true;
       };
       #url = {
       # launch = xdg-open ${url};
       # };
       colors = {
-        alpha = 0.95;
+        alpha = 0.70;
         foreground = "d9e0ee";
         background = "1e1e2e";
         regular0 = "6e6c7e"; # black

@@ -13,7 +13,7 @@
     ./hardware-configuration.nix
     (fetchTarball {
       url = "https://github.com/msteen/nixos-vscode-server/tarball/master";
-      sha256 = "sha256:1cszfjwshj6imkwip270ln4l1j328aw2zh9vm26wv3asnqlhdrak";
+      sha256 = "sha256:0a62zj4vlcxjmn7a30gkpq3zbfys3k1d62d9nn2mi42yyv2hcrm1";
     })
   ];
 
@@ -26,7 +26,7 @@
   #    };
   # };
   boot.kernelPackages = pkgs.linuxKernel.packages.linux_5_18;
-  # boot.kernelModules = ["vmwgfx"];
+  boot.kernelModules = ["vmwgfx"];
   boot.binfmt.emulatedSystems = ["wasm32-wasi" "aarch64-linux"];
   boot.kernel.sysctl = {
     "vm.swappiness" = 0;
@@ -83,11 +83,12 @@
   # enable the tailscale daemon; this will do a variety of tasks:j  # 1. create the TUN network devicej  # 2. setup some IP routes to route through the TUN
   services = {
     xserver.enable = false;
-    # tailscale = {enable = true;};
+    tailscale = {enable = true;};
     resolved.enable = true;
     gnome = {
       gnome-keyring.enable = true;
       gnome-remote-desktop.enable = true;
+      gnome-online-accounts.enable = true;
       gnome-settings-daemon.enable = true;
     };
   };
@@ -180,6 +181,7 @@
   # Enable sound.
   #sound.enable = true;
   security.rtkit.enable = true;
+  security.pam.services.xdm.enableGnomeKeyring = true;
   services.pipewire = {
     wireplumber.enable = true;
     media-session.enable = false;
@@ -239,7 +241,7 @@
         xdg-desktop-portal-wlr
         xdg-desktop-portal-gtk
       ];
-      gtkUsePortal = true;
+      # gtkUsePortal = true;
       wlr.enable = true;
     };
   };
@@ -262,8 +264,8 @@
   nix = {
     settings = {
       # show-trace = true;
+      auto-optimise-store = true;
     };
-    autoOptimiseStore = true;
     package = pkgs.nixUnstable;
     extraOptions = ''
       experimental-features = nix-command flakes
